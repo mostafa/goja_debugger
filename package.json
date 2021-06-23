@@ -1,0 +1,27 @@
+{
+  "name": "goja_debugger",
+  "version": "0.1.0",
+  "description": "A simple Node.js script to generate sourcemaps for a given script",
+  "main": "gen-srcmap.js",
+  "dependencies": {
+    "generate-source-map": "0.0.5",
+    "source-map-support": "^0.5.19"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mostafa/goja_debugger.git"
+  },
+  "keywords": [
+    "sourcemap"
+  ],
+  "author": "Mostafa Moradian",
+  "license": "AGPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/mostafa/goja_debugger/issues"
+  },
+  "homepage": "https://github.com/mostafa/goja_debugger#readme"
+}
