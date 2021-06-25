@@ -48,18 +48,21 @@ debug[0]>
 
 ## Supported commands
 
-When the debugger starts, it'll pause, so that you instruct it to run a command. Most of the following command are supported:
+When the debugger starts, it'll pause, so that you instruct it to run a command or set a breakpoint. Most of the following command are supported:
 
 ```terminal
-next, n         Continue to next line in current file
-cont, c         Resume execution until next debugger line
-step, s         Step into, potentially entering a function (Not Implemented Yet)
-out, o          Step out, leaving the current function (Not Implemented Yet)
-exec, e         Evaluate the expression and print the value
-list, l         Print the source around the current line where execution is currently paused
-print, p        Print the provided variable's value
-help, h         Print this very help message
-quit, q         Exit debugger and quit (Ctrl+C)
+setBreakpoint, sb       Set a breakpoint on a given file and line
+clearBreakpoint, cb     Clear a breakpoint on a given file and line
+breakpoints             List all known breakpoints
+next, n                 Continue to next line in current file
+cont, c                 Resume execution until next debugger line
+step, s                 Step into, potentially entering a function (Not Implemented Yet)
+out, o                  Step out, leaving the current function (Not Implemented Yet)
+exec, e                 Evaluate the expression and print the value
+list, l                 Print the source around the current line where execution is currently paused
+print, p                Print the provided variable's value
+help, h                 Print this very help message
+quit, q                 Exit debugger and quit (Ctrl+C)
 ```
 
 ## Roadmap
@@ -67,6 +70,7 @@ quit, q         Exit debugger and quit (Ctrl+C)
 - Implementation of step-in and step-out commands
 - Possible sourcemap generation on the fly (not sure if it's possible in Go)
 - Fix Goja tests and try to see if changes are needed for TC39 tests
+- Revert changes to interfaces in `compiler.go` and others and use a flag for `debugMode`
 - [DAP](https://microsoft.github.io/debug-adapter-protocol/) integration
 - Integration with [k6](https://github.com/k6io/k6)
 
