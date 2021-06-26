@@ -1,4 +1,4 @@
-module example.com/mostafa/goja_debugger
+module github.com/mostafa/goja_debugger
 
 go 1.16
 
