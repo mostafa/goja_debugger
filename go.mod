@@ -8,5 +8,3 @@ require (
 )
 
 replace github.com/dop251/goja => github.com/mostafa/goja v0.0.0-20210623194737-d2c2bae8a780
-
-replace github.com/dop251/goja_nodejs => github.com/mostafa/goja_nodejs v0.0.0-20210620164044-073cc0123d02
