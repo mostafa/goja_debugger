@@ -67,7 +67,8 @@ quit, q                 Exit debugger and quit (Ctrl+C)
 
 ## Roadmap
 
-- [ ] Expose [a debugger API](https://github.com/dop251/goja/issues/294#issuecomment-869012300) (Thanks to @nwidger :pray:)
+- [x] Expose [a debugger API](https://github.com/dop251/goja/issues/294#issuecomment-869012300) (Thanks to [@nwidger](https://github.com/nwidger) :pray:)
+- [ ] Implement debugger event-loop using channels for the new API
 - [ ] Implementation of step-in and step-out commands
 - [ ] Possible sourcemap generation on the fly (not sure if it's possible in Go)
 - [ ] Fix Goja tests and try to see if changes are needed for TC39 tests
