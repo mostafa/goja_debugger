@@ -67,13 +67,13 @@ quit, q                 Exit debugger and quit (Ctrl+C)
 
 ## Roadmap
 
-- Expose [a debugger API](https://github.com/dop251/goja/issues/294#issuecomment-869012300) (Thanks to @nwidger :pray:)
-- Implementation of step-in and step-out commands
-- Possible sourcemap generation on the fly (not sure if it's possible in Go)
-- Fix Goja tests and try to see if changes are needed for TC39 tests
-- Revert changes to interfaces in `compiler.go` and others and use a flag for `debugMode`
-- [DAP](https://microsoft.github.io/debug-adapter-protocol/) integration
-- Integration with [k6](https://github.com/k6io/k6)
+- [ ] Expose [a debugger API](https://github.com/dop251/goja/issues/294#issuecomment-869012300) (Thanks to @nwidger :pray:)
+- [ ] Implementation of step-in and step-out commands
+- [ ] Possible sourcemap generation on the fly (not sure if it's possible in Go)
+- [ ] Fix Goja tests and try to see if changes are needed for TC39 tests
+- [x] Revert changes to interfaces in `compiler.go` and others and use a flag for `debugMode`
+- [ ] [DAP](https://microsoft.github.io/debug-adapter-protocol/) integration
+- [ ] Integration with [k6](https://github.com/k6io/k6)
 
 ## License
 
