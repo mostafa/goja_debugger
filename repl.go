@@ -179,16 +179,16 @@ type Cmd struct {
 }
 
 var help = `
-	setBreakpoint, sb\tSet a breakpoint on a given file and line
-	clearBreakpoint, cb\tClear a breakpoint on a given file and line
-	breakpoints\tList all known breakpoints
-	next, n\tContinue to next line in current file
-	cont, c\tResume execution until next debugger line
-	step, s\tStep into, potentially entering a function (not implemented yet)
-	out, o\tStep out, leaving the current function (not implemented yet)
-	exec, e\tEvaluate the expression and print the value
-	list, l\tPrint the source around the current line where execution is currently paused
-	print, p\tPrint the provided variable's value
-	help, h\tPrint this very help message
-	quit, q\tExit debugger and quit (Ctrl+C)
+	setBreakpoint, sb        Set a breakpoint on a given file and line
+	clearBreakpoint, cb      Clear a breakpoint on a given file and line
+	breakpoints              List all known breakpoints
+	next, n                  Continue to next line in current file
+	cont, c                  Resume execution until next debugger line
+	step, s                  Step into, potentially entering a function (not implemented yet)
+	out, o                   Step out, leaving the current function (not implemented yet)
+	exec, e                  Evaluate the expression and print the value
+	list, l                  Print the source around the current line where execution is currently paused
+	print, p                 Print the provided variable's value
+	help, h                  Print this very help message
+	quit, q                  Exit debugger and quit (Ctrl+C)
 `[1:] // this removes the first new line
