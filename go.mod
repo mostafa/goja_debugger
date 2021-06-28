@@ -12,4 +12,4 @@ require (
 	golang.org/x/sys v0.0.0-20210616094352-59db8d763f22 // indirect
 )
 
-replace github.com/dop251/goja => github.com/mstoykov/goja v0.0.0-20210628100343-fe3ffd18f06a
+replace github.com/dop251/goja => github.com/mstoykov/goja v0.0.0-20210628135640-728174b063bb

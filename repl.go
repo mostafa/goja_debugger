@@ -11,22 +11,11 @@ import (
 	"github.com/dop251/goja"
 )
 
-// const (
-// 	SetBreakpoint   = "sb"
-// 	ClearBreakpoint = "cb"
-// 	Breakpoints     = "breakpoints"
-// 	Next            = "n"
-// 	Continue        = "c"
-// 	StepIn          = "s"
-// 	StepOut         = "o"
-// 	Exec            = "e"
-// 	Print           = "p"
-// 	List            = "l"
-// 	Help            = "h"
-// 	Quit            = "q"
-// 	Empty           = ""
-// 	NewLine         = "\n"
-// )
+const (
+	GreenColor = "\u001b[32m"
+	GrayColor  = "\u001b[38;5;245m"
+	ResetColor = "\u001b[0m"
+)
 
 type Command struct {
 	Name string
@@ -64,11 +53,11 @@ func completer(d prompt.Document) []prompt.Suggest {
 	return prompt.FilterHasPrefix(s, d.GetWordBeforeCursor(), true)
 }
 
-func executor(in string) {
+func executor(in string) bool {
 	cmd, err := parseCmd(in)
 	if err != nil {
 		fmt.Println(err)
-		return
+		return true
 	}
 
 	var result goja.Result
@@ -76,7 +65,7 @@ func executor(in string) {
 	case "setBreakpoint", "sb":
 		if len(cmd.Args) < 2 {
 			fmt.Println("sb filename linenumber")
-			return
+			return true
 		}
 		if line, err := strconv.Atoi(cmd.Args[1]); err != nil {
 			fmt.Printf("Cannot convert %s to line number\n", cmd.Args[1])
@@ -89,7 +78,7 @@ func executor(in string) {
 	case "clearBreakpoint", "cb":
 		if len(cmd.Args) < 2 {
 			fmt.Println("cb filename linenumber")
-			return
+			return true
 		}
 		if line, err := strconv.Atoi(cmd.Args[1]); err != nil {
 			fmt.Printf("Cannot convert %s to line number\n", cmd.Args[1])
@@ -112,6 +101,7 @@ func executor(in string) {
 		result = dbg.Next()
 	case "cont", "continue", "c":
 		result = dbg.Continue()
+		return false
 	case "step", "s":
 		result = dbg.StepIn()
 	case "out", "o":
@@ -122,9 +112,35 @@ func executor(in string) {
 		result = dbg.Print(strings.Join(cmd.Args, ""))
 	case "list", "l":
 		result = dbg.List()
+		if result.Err == nil {
+			lines := result.Value.([]string)
+
+			currentLine := dbg.Line()
+			lineIndex := currentLine - 1
+			var builder strings.Builder
+			for idx, lineContents := range lines {
+				if InBetween(lineIndex, idx-4, idx+4) {
+					lineNumber := idx + 1
+					totalPadding := 6
+					digitCount := CountDigits(lineNumber)
+					if digitCount >= totalPadding {
+						totalPadding = digitCount + 1
+					}
+					if currentLine == lineNumber {
+						padding := strings.Repeat(" ", totalPadding-digitCount)
+						builder.Write([]byte(fmt.Sprintf("%s>%s %d%s%s\n", GreenColor, ResetColor, currentLine, padding, lines[lineIndex])))
+					} else {
+						padding := strings.Repeat(" ", totalPadding-digitCount)
+						builder.Write([]byte(fmt.Sprintf("%s  %d%s%s%s\n", GrayColor, lineNumber, padding, lineContents, ResetColor)))
+					}
+				}
+			}
+			fmt.Println(builder.String())
+		}
+		return true
 	case "help", "h":
-		// result := dbg.Help()
-		// fmt.Print(result.Value)
+		fmt.Println(help)
+		return true
 	case "quit", "q":
 		os.Exit(0)
 	default:
@@ -138,6 +154,23 @@ func executor(in string) {
 	if result.Err != nil {
 		fmt.Printf("%sError: %s\n", prefix, result.Err)
 	}
+	return true
+}
+
+func InBetween(i, min, max int) bool {
+	if (i >= min) && (i <= max) {
+		return true
+	} else {
+		return false
+	}
+}
+
+func CountDigits(number int) int {
+	if number < 10 {
+		return 1
+	} else {
+		return 1 + CountDigits(number/10)
+	}
 }
 
 type Cmd struct {
@@ -145,141 +178,17 @@ type Cmd struct {
 	Args []string
 }
 
-// func REPL(dbg *goja.Debugger, intro bool) {
-// 	// Refactor this piece of sh!t
-// 	debuggerCommands := map[string]string{
-// 		"setBreakpoint":   SetBreakpoint,
-// 		SetBreakpoint:     SetBreakpoint,
-// 		"clearBreakpoint": ClearBreakpoint,
-// 		ClearBreakpoint:   ClearBreakpoint,
-// 		"breakpoints":     Breakpoints,
-// 		"next":            Next,
-// 		Next:              Next,
-// 		"cont":            Continue,
-// 		Continue:          Continue,
-// 		"step":            StepIn,
-// 		StepIn:            StepIn,
-// 		"out":             StepOut,
-// 		StepOut:           StepOut,
-// 		"exec":            Exec,
-// 		Exec:              Exec,
-// 		"print":           Print,
-// 		Print:             Print,
-// 		"list":            List,
-// 		List:              List,
-// 		"help":            Help,
-// 		Help:              Help,
-// 		"quit":            Quit,
-// 		Quit:              Quit,
-// 		NewLine:           "\n",
-// 	}
-// 	if intro {
-// 		fmt.Println("Welcome to Goja debugger")
-// 		fmt.Println("Type 'help' or 'h' for list of commands.")
-// 	} else {
-// 		if dbg.IsBreakOnStart() {
-// 			fmt.Printf("Break on start in %s:%d\n", dbg.Filename(), dbg.Line())
-// 		} else {
-// 			fmt.Printf("Break in %s:%d\n", dbg.Filename(), dbg.Line())
-// 		}
-// 		result := dbg.List()
-// 		fmt.Println(result.Value)
-// 		if result.Err != nil {
-// 			fmt.Println(result.Err)
-// 		}
-// 	}
-
-// 	var commandAndArguments []string
-
-// 	// var prev *goja.Breakpoint
-// 	for b := dbg.Wait(); b != nil; b, _ = dbg.Wait(), b {
-// 		command, err := parseCmd(dbg.GetPC())
-// 		commandAndArguments = strings.Split(command[:len(command)-1], " ")
-// 		if command == NewLine && len(dbg.LastDebuggerCmdAndArgs) > 0 {
-// 			// If enter is pressed and there's a command already executed,
-// 			// run the last debugger command
-// 			commandAndArguments = make([]string, len(dbg.LastDebuggerCmdAndArgs))
-// 			copy(commandAndArguments, dbg.LastDebuggerCmdAndArgs)
-// 		}
-
-// 		if v, ok := debuggerCommands[commandAndArguments[0]]; ok {
-// 			if command != NewLine {
-// 				// FIXME: Exec command acts as Next on the next run
-// 				dbg.LastDebuggerCmdAndArgs = make([]string, len(commandAndArguments))
-// 				copy(dbg.LastDebuggerCmdAndArgs, commandAndArguments)
-// 			}
-
-// 			switch v {
-// 			case SetBreakpoint:
-// 				if len(commandAndArguments) < 3 {
-// 					fmt.Println("sb filename linenumber")
-// 					continue
-// 				}
-// 				if line, err := strconv.Atoi(commandAndArguments[2]); err != nil {
-// 					fmt.Printf("Cannot convert %s to line number\n", commandAndArguments[2])
-// 				} else {
-// 					err := dbg.SetBreakpoint(commandAndArguments[1], line)
-// 					if err != nil {
-// 						fmt.Println(err.Error())
-// 					}
-// 				}
-// 			case ClearBreakpoint:
-// 				if len(commandAndArguments) < 3 {
-// 					fmt.Println("cb filename linenumber")
-// 					continue
-// 				}
-// 				if line, err := strconv.Atoi(commandAndArguments[2]); err != nil {
-// 					fmt.Printf("Cannot convert %s to line number\n", commandAndArguments[2])
-// 				} else {
-// 					err := dbg.ClearBreakpoint(commandAndArguments[1], line)
-// 					if err != nil {
-// 						fmt.Println(err.Error())
-// 					}
-// 				}
-// 			case Breakpoints:
-// 				breakpoints, err := dbg.Breakpoints()
-// 				if err != nil {
-// 					fmt.Println(err.Error())
-// 				} else {
-// 					for _, b := range breakpoints {
-// 						fmt.Printf("Breakpoint on %s:%d\n", b.Filename, b.Line)
-// 					}
-// 				}
-// 			case Next:
-// 				return
-// 			case Continue:
-// 				return
-// 			case StepIn:
-// 				fmt.Println(dbg.StepIn())
-// 			case StepOut:
-// 				fmt.Println(dbg.StepOut())
-// 			case Exec:
-// 				result := dbg.Exec(strings.Join(commandAndArguments[1:], ";"))
-// 				if result.Err != nil {
-// 					fmt.Println(result.Err)
-// 				}
-// 			case Print:
-// 				result := dbg.Print(strings.Join(commandAndArguments[1:], ""))
-// 				fmt.Printf("< %s\n", result.Value)
-// 				if err != nil {
-// 					fmt.Printf("< Error: %s\n", result.Err)
-// 				}
-// 			case List:
-// 				result := dbg.List()
-// 				fmt.Print(result.Value)
-// 				if err != nil {
-// 					fmt.Println(result.Err)
-// 				}
-// 			// case Help:
-// 			// result := dbg.Help()
-// 			// fmt.Print(result.Value)
-// 			case Quit:
-// 				dbg.Quit(0)
-// 			default:
-// 				dbg.Quit(0)
-// 			}
-// 		} else {
-// 			fmt.Println("unknown command")
-// 		}
-// 	}
-// }
+var help = `
+	setBreakpoint, sb\tSet a breakpoint on a given file and line
+	clearBreakpoint, cb\tClear a breakpoint on a given file and line
+	breakpoints\tList all known breakpoints
+	next, n\tContinue to next line in current file
+	cont, c\tResume execution until next debugger line
+	step, s\tStep into, potentially entering a function (not implemented yet)
+	out, o\tStep out, leaving the current function (not implemented yet)
+	exec, e\tEvaluate the expression and print the value
+	list, l\tPrint the source around the current line where execution is currently paused
+	print, p\tPrint the provided variable's value
+	help, h\tPrint this very help message
+	quit, q\tExit debugger and quit (Ctrl+C)
+`[1:] // this removes the first new line
