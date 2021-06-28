@@ -16,9 +16,8 @@ import (
 )
 
 var (
-	dbg   *goja.Debugger
-	dbgCh <-chan *goja.Debugger
-	wg    sync.WaitGroup
+	dbg *goja.Debugger
+	wg  sync.WaitGroup
 )
 
 func main() {
@@ -69,7 +68,7 @@ func main() {
 
 	// var debugger *goja.Debugger
 	if inspect {
-		dbgCh = runtime.EnableDebugMode()
+		dbg = runtime.EnableDebugMode()
 	}
 
 	// go func() {
@@ -108,15 +107,16 @@ func main() {
 
 	go func() {
 		reader := bufio.NewReader(os.Stdin)
-		dbg = <-dbgCh // wait for debugger
 
+		_, c := dbg.WaitToActivate()
 		for {
 			fmt.Print("-> ")
 			text, _ := reader.ReadString('\n')
 			// convert CRLF to LF
 			text = strings.Replace(text, "\n", "", -1)
 			if !executor(text) {
-				dbg = <-dbgCh // wait for debugger
+				c()
+				_, c = dbg.WaitToActivate()
 			}
 		}
 	}()

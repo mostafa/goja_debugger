@@ -100,7 +100,7 @@ func executor(in string) bool {
 	case "next", "n":
 		result = dbg.Next()
 	case "cont", "continue", "c":
-		result = dbg.Continue()
+		//		result = dbg.Continue()
 		return false
 	case "step", "s":
 		result = dbg.StepIn()
