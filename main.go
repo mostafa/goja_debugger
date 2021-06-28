@@ -1,29 +1,25 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
+	"strings"
 	"sync"
 
-	"github.com/c-bata/go-prompt"
 	"github.com/dop251/goja"
 	"github.com/dop251/goja/parser"
 	"github.com/dop251/goja_nodejs/console"
 	"github.com/dop251/goja_nodejs/require"
 )
 
-var dbg *goja.Debugger
-var wg sync.WaitGroup
-
-func getLivePrefix() (string, bool) {
-	if dbg == nil {
-		return "debug>", false
-	} else {
-		return fmt.Sprintf("debug[%d]> ", dbg.GetPC()), true
-	}
-}
+var (
+	dbg   *goja.Debugger
+	dbgCh <-chan *goja.Debugger
+	wg    sync.WaitGroup
+)
 
 func main() {
 	inspect := false
@@ -73,7 +69,7 @@ func main() {
 
 	// var debugger *goja.Debugger
 	if inspect {
-		dbg = runtime.EnableDebugMode()
+		dbgCh = runtime.EnableDebugMode()
 	}
 
 	// go func() {
@@ -110,12 +106,18 @@ func main() {
 	// 	os.Exit(4)
 	// }
 
-	p := prompt.New(
-		executor,
-		completer,
-		prompt.OptionLivePrefix(getLivePrefix),
-	)
-	go p.Run()
+	go func() {
+		reader := bufio.NewReader(os.Stdin)
+		dbg = <-dbgCh // wait for debugger
+
+		for {
+			fmt.Print("-> ")
+			text, _ := reader.ReadString('\n')
+			// convert CRLF to LF
+			text = strings.Replace(text, "\n", "", -1)
+			executor(text)
+		}
+	}()
 
 	wg.Wait()
 }

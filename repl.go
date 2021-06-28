@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/c-bata/go-prompt"
+	"github.com/dop251/goja"
 )
 
 // const (
@@ -45,18 +46,6 @@ func parseCmd(in string) (*Command, error) {
 	return &Command{Name: name, Args: args}, nil
 }
 
-func getResult(prefix string) {
-	wg.Add(1)
-	result := dbg.GetResult()
-	if result.Value != nil {
-		fmt.Printf("%s%s\n", prefix, result.Value)
-	}
-	if result.Err != nil {
-		fmt.Printf("%sError: %s\n", prefix, result.Err)
-	}
-	wg.Done()
-}
-
 func completer(d prompt.Document) []prompt.Suggest {
 	s := []prompt.Suggest{
 		{Text: "setBreakpoint, sb", Description: "Set a breakpoint on a given file and line"},
@@ -82,6 +71,7 @@ func executor(in string) {
 		return
 	}
 
+	var result goja.Result
 	switch cmd.Name {
 	case "setBreakpoint", "sb":
 		if len(cmd.Args) < 2 {
@@ -119,26 +109,19 @@ func executor(in string) {
 			}
 		}
 	case "next", "n":
-		dbg.Next()
-		go getResult("< ")
+		result = dbg.Next()
 	case "cont", "continue", "c":
-		dbg.Continue()
-		go getResult("< ")
+		result = dbg.Continue()
 	case "step", "s":
-		dbg.StepIn()
-		go getResult("< ")
+		result = dbg.StepIn()
 	case "out", "o":
-		dbg.StepOut()
-		go getResult("< ")
+		result = dbg.StepOut()
 	case "exec", "e":
-		dbg.Exec(strings.Join(cmd.Args, ";"))
-		go getResult("< ")
+		result = dbg.Exec(strings.Join(cmd.Args, ";"))
 	case "print", "p":
-		dbg.Print(strings.Join(cmd.Args, ""))
-		go getResult("< ")
+		result = dbg.Print(strings.Join(cmd.Args, ""))
 	case "list", "l":
-		dbg.List()
-		go getResult("")
+		result = dbg.List()
 	case "help", "h":
 		// result := dbg.Help()
 		// fmt.Print(result.Value)
@@ -148,7 +131,13 @@ func executor(in string) {
 		// dbg.Quit(0)
 	}
 
-	wg.Done()
+	prefix := "<" // this should probably be done differently
+	if result.Value != nil {
+		fmt.Printf("%s%s\n", prefix, result.Value)
+	}
+	if result.Err != nil {
+		fmt.Printf("%sError: %s\n", prefix, result.Err)
+	}
 }
 
 type Cmd struct {
