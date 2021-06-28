@@ -144,7 +144,7 @@ func executor(in string) bool {
 	case "quit", "q":
 		os.Exit(0)
 	default:
-		// dbg.Quit(0)
+		fmt.Printf("Unknown command, `%s`. You can use `h` to print available commands\n", in)
 	}
 
 	prefix := "<" // this should probably be done differently
