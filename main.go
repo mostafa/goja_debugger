@@ -18,6 +18,8 @@ var dbg *goja.Debugger
 
 func main() {
 	inspect := false
+	// Possible values for liveInfo: pc, line, ""
+	liveInfo := "pc"
 	filename := ""
 
 	if len(os.Args) == 2 {
@@ -25,8 +27,12 @@ func main() {
 	} else if len(os.Args) == 3 {
 		inspect = (os.Args[1] == "inspect")
 		filename = os.Args[2]
+	} else if len(os.Args) == 4 {
+		inspect = (os.Args[1] == "inspect")
+		liveInfo = os.Args[2]
+		filename = os.Args[3]
 	} else {
-		fmt.Printf("Help:\n%s [inspect] <filename>\nUse inspect to enable debugging.\n", os.Args[0])
+		fmt.Printf(cmdHelp, os.Args[0])
 		os.Exit(1)
 	}
 
@@ -84,21 +90,28 @@ func main() {
 	}
 
 	go func() {
-		if inspect {
-			reader := bufio.NewReader(os.Stdin)
+		reader := bufio.NewReader(os.Stdin)
 
-			b, c := dbg.WaitToActivate()
-			printWhyWeAreDebugging(b)
-			for {
-				fmt.Printf("debug[%d]> ", dbg.GetPC())
-				text, _ := reader.ReadString('\n')
-				// convert CRLF to LF
-				text = strings.Replace(text, "\n", "", -1)
-				if !executor(text) {
-					c()
-					b, c = dbg.WaitToActivate()
-					printWhyWeAreDebugging(b)
-				}
+		b, c := dbg.WaitToActivate()
+		printWhyWeAreDebugging(b)
+		for {
+			info := ""
+			switch liveInfo {
+			case "pc":
+				info = fmt.Sprintf("[%d]", dbg.GetPC())
+			case "line":
+				info = fmt.Sprintf("[%d]", dbg.Line())
+			default:
+				info = fmt.Sprintf("[%d]", dbg.GetPC())
+			}
+			fmt.Printf("debug%s> ", info)
+			text, _ := reader.ReadString('\n')
+			// convert CRLF to LF
+			text = strings.Replace(text, "\n", "", -1)
+			if !executor(text) {
+				c()
+				b, c = dbg.WaitToActivate()
+				printWhyWeAreDebugging(b)
 			}
 		}
 	}()
@@ -109,3 +122,10 @@ func main() {
 		os.Exit(4)
 	}
 }
+
+var cmdHelp = `
+%s [inspect] [line|pc] <filename>
+
+inspect: enable debugging
+line|pc: show line number or program counter at debug prompt
+`[1:]
