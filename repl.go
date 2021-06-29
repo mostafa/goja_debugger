@@ -7,7 +7,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/c-bata/go-prompt"
 	"github.com/dop251/goja"
 )
 
@@ -33,24 +32,6 @@ func parseCmd(in string) (*Command, error) {
 		args = append(args, data[1:]...)
 	}
 	return &Command{Name: name, Args: args}, nil
-}
-
-func completer(d prompt.Document) []prompt.Suggest {
-	s := []prompt.Suggest{
-		{Text: "setBreakpoint, sb", Description: "Set a breakpoint on a given file and line"},
-		{Text: "clearBreakpoint, cb", Description: "Clear a breakpoint on a given file and line"},
-		{Text: "breakpoints", Description: "List all known breakpoints"},
-		{Text: "next, n", Description: "Continue to next line in current file"},
-		{Text: "cont, c", Description: "Resume execution until next debugger line"},
-		{Text: "step, s", Description: "Step into, potentially entering a function (not implemented yet)"},
-		{Text: "out, o", Description: "Step out, leaving the current function (not implemented yet)"},
-		{Text: "exec, e", Description: "Evaluate the expression and print the value"},
-		{Text: "list, l", Description: "Print the source around the current line where execution is currently paused"},
-		{Text: "print, p", Description: "Print the provided variable's value"},
-		{Text: "help, h", Description: "Print this very help message"},
-		{Text: "quit, q", Description: "Exit debugger and quit (Ctrl+C)"},
-	}
-	return prompt.FilterHasPrefix(s, d.GetWordBeforeCursor(), true)
 }
 
 func executor(in string) bool {
@@ -100,7 +81,6 @@ func executor(in string) bool {
 	case "next", "n":
 		result = dbg.Next()
 	case "cont", "continue", "c":
-		//		result = dbg.Continue()
 		return false
 	case "step", "s":
 		result = dbg.StepIn()
@@ -119,10 +99,10 @@ func executor(in string) bool {
 			lineIndex := currentLine - 1
 			var builder strings.Builder
 			for idx, lineContents := range lines {
-				if InBetween(lineIndex, idx-4, idx+4) {
+				if inRange(lineIndex, idx-4, idx+4) {
 					lineNumber := idx + 1
 					totalPadding := 6
-					digitCount := CountDigits(lineNumber)
+					digitCount := countDigits(lineNumber)
 					if digitCount >= totalPadding {
 						totalPadding = digitCount + 1
 					}
@@ -157,7 +137,7 @@ func executor(in string) bool {
 	return true
 }
 
-func InBetween(i, min, max int) bool {
+func inRange(i, min, max int) bool {
 	if (i >= min) && (i <= max) {
 		return true
 	} else {
@@ -165,17 +145,12 @@ func InBetween(i, min, max int) bool {
 	}
 }
 
-func CountDigits(number int) int {
+func countDigits(number int) int {
 	if number < 10 {
 		return 1
 	} else {
-		return 1 + CountDigits(number/10)
+		return 1 + countDigits(number/10)
 	}
-}
-
-type Cmd struct {
-	Name string
-	Args []string
 }
 
 var help = `

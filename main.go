@@ -40,17 +40,14 @@ func main() {
 		os.Exit(2)
 	}
 
-	var lastPrint string
 	printer := console.PrinterFunc(func(s string) {
-		lastPrint = s
 		fmt.Printf("< %s\n", s)
 	})
 
-	count := 0
-	requestedPath := ""
-	loader := func(p string) ([]byte, error) {
-		count++
-		requestedPath = p
+	loader := func(requestedPath string) ([]byte, error) {
+		if requestedPath != "" {
+			fmt.Printf("Loaded sourcemap from: %s\n", requestedPath)
+		}
 		return nil, nil
 	}
 
@@ -62,35 +59,9 @@ func main() {
 
 	runtime := goja.New()
 
-	// var wg sync.WaitGroup
-	// wg.Add(1)
-	// defer wg.Done()
-
-	// var debugger *goja.Debugger
 	if inspect {
 		dbg = runtime.EnableDebugMode()
 	}
-
-	// go func() {
-	// 	var prev *Break
-	// 	for b := d.Wait(); b != nil; b, prev = d.Wait(), b {
-	// 		if b != prev {
-	// 			fmt.Printf("Break at %s:%d", b.Filename(), b.Line())
-	// 		}
-	// 		fmt.Println("> ")
-	// 		cmd := parseCmdFromStdin()
-	// 		switch cmd.Name {
-	// 		case "cont", "c":
-	// 			d.Continue()
-	// 		case "next", "n":
-	// 			d.Next()
-	// 		case "list", "l":
-	// 			fmt.Println(b.Source())
-	// 		}
-	// 	}
-	// }()
-	// fmt.Println(debugger.Help().Value)
-	// fmt.Println(debugger.List().Value)
 
 	registry := new(require.Registry)
 	registry.Enable(runtime)
@@ -100,10 +71,11 @@ func main() {
 	wg.Add(2)
 
 	go runtime.RunScript(filename, string(content))
-	// if err != nil {
-	// 	log.Fatal(err)
-	// 	os.Exit(4)
-	// }
+	if err != nil {
+		log.Fatal(err)
+		os.Exit(4)
+	}
+
 	printWhyWeAreDebugging := func(b string) {
 		if b == goja.BreakpointActivation {
 			fmt.Println("hit breakpoint")
