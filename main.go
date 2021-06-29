@@ -36,15 +36,21 @@ func main() {
 		os.Exit(2)
 	}
 
-	fmt.Println("Welcome to Goja debugger")
-	fmt.Println("Type 'help' or 'h' for list of commands.")
+	if inspect {
+		fmt.Println("Welcome to Goja debugger")
+		fmt.Println("Type 'help' or 'h' for list of commands.")
+	}
 
 	printer := console.PrinterFunc(func(s string) {
-		fmt.Printf("< %s\n", s)
+		prefix := ""
+		if inspect {
+			prefix = "< "
+		}
+		fmt.Printf("%s%s\n", prefix, s)
 	})
 
 	loader := func(requestedPath string) ([]byte, error) {
-		if requestedPath != "" {
+		if requestedPath != "" && inspect {
 			fmt.Printf("%sLoaded sourcemap from: %s%s\n", GrayColor, requestedPath, ResetColor)
 		}
 		return nil, nil
@@ -78,19 +84,21 @@ func main() {
 	}
 
 	go func() {
-		reader := bufio.NewReader(os.Stdin)
+		if inspect {
+			reader := bufio.NewReader(os.Stdin)
 
-		b, c := dbg.WaitToActivate()
-		printWhyWeAreDebugging(b)
-		for {
-			fmt.Printf("debug[%d]> ", dbg.GetPC())
-			text, _ := reader.ReadString('\n')
-			// convert CRLF to LF
-			text = strings.Replace(text, "\n", "", -1)
-			if !executor(text) {
-				c()
-				b, c = dbg.WaitToActivate()
-				printWhyWeAreDebugging(b)
+			b, c := dbg.WaitToActivate()
+			printWhyWeAreDebugging(b)
+			for {
+				fmt.Printf("debug[%d]> ", dbg.GetPC())
+				text, _ := reader.ReadString('\n')
+				// convert CRLF to LF
+				text = strings.Replace(text, "\n", "", -1)
+				if !executor(text) {
+					c()
+					b, c = dbg.WaitToActivate()
+					printWhyWeAreDebugging(b)
+				}
 			}
 		}
 	}()
