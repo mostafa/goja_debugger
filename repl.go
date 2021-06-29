@@ -83,6 +83,11 @@ func executor(in string) bool {
 		}
 	case "cont", "continue", "c":
 		return false
+	case "step", "s":
+		err = dbg.StepIn()
+		if err != nil {
+			return false
+		}
 	case "exec", "e":
 		val, err := dbg.Exec(strings.Join(cmd.Args, ";"))
 		if err != nil {
