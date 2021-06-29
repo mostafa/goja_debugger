@@ -7,4 +7,4 @@ require (
 	github.com/dop251/goja_nodejs v0.0.0-20210225215109-d91c329300e7
 )
 
-replace github.com/dop251/goja => github.com/mostafa/goja v0.0.0-20210629101334-ae4f3d11cee4
+replace github.com/dop251/goja => ../goja
