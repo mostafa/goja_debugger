@@ -67,11 +67,6 @@ func main() {
 	registry.RegisterNativeModule("console", console.RequireWithPrinter(printer))
 	console.Enable(runtime)
 
-	if err != nil {
-		log.Fatal(err)
-		os.Exit(4)
-	}
-
 	printWhyWeAreDebugging := func(b string) {
 		if b == goja.BreakpointActivation {
 			fmt.Printf("Break on breakpoint in %s:%d\ns", dbg.Filename(), dbg.Line())
@@ -101,5 +96,10 @@ func main() {
 			}
 		}
 	}()
+
 	runtime.RunScript(filename, string(content))
+	if err != nil {
+		log.Fatal(err)
+		os.Exit(4)
+	}
 }
