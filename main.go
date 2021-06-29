@@ -68,14 +68,12 @@ func main() {
 	console.Enable(runtime)
 
 	printWhyWeAreDebugging := func(b string) {
-		if b == goja.BreakpointActivation {
+		if b == goja.ProgramStartActivation {
+			fmt.Printf("Break on start in %s:%d\n", dbg.Filename(), dbg.Line())
+		} else if b == goja.BreakpointActivation {
 			fmt.Printf("Break on breakpoint in %s:%d\ns", dbg.Filename(), dbg.Line())
 		} else {
-			if dbg.IsBreakOnStart() {
-				fmt.Printf("Break on start in %s:%d\n", dbg.Filename(), dbg.Line())
-			} else {
-				fmt.Printf("Break on debugger statement in %s:%d\n", dbg.Filename(), dbg.Line())
-			}
+			fmt.Printf("Break on debugger statement in %s:%d\n", dbg.Filename(), dbg.Line())
 		}
 	}
 

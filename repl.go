@@ -76,7 +76,11 @@ func executor(in string) bool {
 			}
 		}
 	case "next", "n":
-		dbg.Next()
+		err = dbg.Next()
+		if err != nil {
+			// fmt.Println(err)
+			return false
+		}
 	case "cont", "continue", "c":
 		return false
 	case "exec", "e":
