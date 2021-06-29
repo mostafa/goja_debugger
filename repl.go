@@ -94,14 +94,14 @@ func executor(in string) bool {
 			fmt.Printf("Error: %s\n", err)
 			break
 		}
-		fmt.Printf("<  %s\n", val)
+		fmt.Printf("< %s\n", val)
 	case "print", "p":
 		val, err := dbg.Print(strings.Join(cmd.Args, ""))
 		if err != nil {
 			fmt.Printf("Error: %s\n", err)
 			break
 		}
-		fmt.Printf("<  %s\n", val)
+		fmt.Printf("< %s\n", val)
 	case "list", "l":
 		lines, err := dbg.List()
 		if err != nil {
