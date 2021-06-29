@@ -40,13 +40,16 @@ func main() {
 		os.Exit(2)
 	}
 
+	fmt.Println("Welcome to Goja debugger")
+	fmt.Println("Type 'help' or 'h' for list of commands.")
+
 	printer := console.PrinterFunc(func(s string) {
 		fmt.Printf("< %s\n", s)
 	})
 
 	loader := func(requestedPath string) ([]byte, error) {
 		if requestedPath != "" {
-			fmt.Printf("Loaded sourcemap from: %s\n", requestedPath)
+			fmt.Printf("%sLoaded sourcemap from: %s%s\n", GrayColor, requestedPath, ResetColor)
 		}
 		return nil, nil
 	}
@@ -78,9 +81,13 @@ func main() {
 
 	printWhyWeAreDebugging := func(b string) {
 		if b == goja.BreakpointActivation {
-			fmt.Println("hit breakpoint")
+			fmt.Printf("Break on breakpoint in %s:%d\ns", dbg.Filename(), dbg.Line())
 		} else {
-			fmt.Println("hit debugger statement")
+			if dbg.IsBreakOnStart() {
+				fmt.Printf("Break on start in %s:%d\n", dbg.Filename(), dbg.Line())
+			} else {
+				fmt.Printf("Break on debugger statement in %s:%d\n", dbg.Filename(), dbg.Line())
+			}
 		}
 	}
 
