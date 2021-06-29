@@ -6,8 +6,6 @@ import (
 	"os"
 	"strconv"
 	"strings"
-
-	"github.com/dop251/goja"
 )
 
 const (
@@ -41,7 +39,6 @@ func executor(in string) bool {
 		return true
 	}
 
-	var result goja.Result
 	switch cmd.Name {
 	case "setBreakpoint", "sb":
 		if len(cmd.Args) < 2 {
@@ -79,61 +76,58 @@ func executor(in string) bool {
 			}
 		}
 	case "next", "n":
-		result = dbg.Next()
+		dbg.Next()
 	case "cont", "continue", "c":
 		return false
-	case "step", "s":
-		result = dbg.StepIn()
-	case "out", "o":
-		result = dbg.StepOut()
 	case "exec", "e":
-		result = dbg.Exec(strings.Join(cmd.Args, ";"))
+		val, err := dbg.Exec(strings.Join(cmd.Args, ";"))
+		if err != nil {
+			fmt.Printf("Error: %s\n", err)
+			break
+		}
+		fmt.Printf("<  %s\n", val)
 	case "print", "p":
-		result = dbg.Print(strings.Join(cmd.Args, ""))
+		val, err := dbg.Print(strings.Join(cmd.Args, ""))
+		if err != nil {
+			fmt.Printf("Error: %s\n", err)
+			break
+		}
+		fmt.Printf("<  %s\n", val)
 	case "list", "l":
-		result = dbg.List()
-		if result.Err == nil {
-			lines := result.Value.([]string)
-
-			currentLine := dbg.Line()
-			lineIndex := currentLine - 1
-			var builder strings.Builder
-			for idx, lineContents := range lines {
-				if inRange(lineIndex, idx-4, idx+4) {
-					lineNumber := idx + 1
-					totalPadding := 6
-					digitCount := countDigits(lineNumber)
-					if digitCount >= totalPadding {
-						totalPadding = digitCount + 1
-					}
-					if currentLine == lineNumber {
-						padding := strings.Repeat(" ", totalPadding-digitCount)
-						builder.Write([]byte(fmt.Sprintf("%s>%s %d%s%s\n", GreenColor, ResetColor, currentLine, padding, lines[lineIndex])))
-					} else {
-						padding := strings.Repeat(" ", totalPadding-digitCount)
-						builder.Write([]byte(fmt.Sprintf("%s  %d%s%s%s\n", GrayColor, lineNumber, padding, lineContents, ResetColor)))
-					}
+		lines, err := dbg.List()
+		if err != nil {
+			fmt.Printf("Error: %s\n", err)
+			break
+		}
+		currentLine := dbg.Line()
+		lineIndex := currentLine - 1
+		var builder strings.Builder
+		for idx, lineContents := range lines {
+			if inRange(lineIndex, idx-4, idx+4) {
+				lineNumber := idx + 1
+				totalPadding := 6
+				digitCount := countDigits(lineNumber)
+				if digitCount >= totalPadding {
+					totalPadding = digitCount + 1
+				}
+				if currentLine == lineNumber {
+					padding := strings.Repeat(" ", totalPadding-digitCount)
+					builder.Write([]byte(fmt.Sprintf("%s>%s %d%s%s\n", GreenColor, ResetColor, currentLine, padding, lines[lineIndex])))
+				} else {
+					padding := strings.Repeat(" ", totalPadding-digitCount)
+					builder.Write([]byte(fmt.Sprintf("%s  %d%s%s%s\n", GrayColor, lineNumber, padding, lineContents, ResetColor)))
 				}
 			}
-			fmt.Println(builder.String())
 		}
-		return true
+		fmt.Println(builder.String())
 	case "help", "h":
 		fmt.Println(help)
-		return true
 	case "quit", "q":
 		os.Exit(0)
 	default:
 		fmt.Printf("Unknown command, `%s`. You can use `h` to print available commands\n", in)
 	}
 
-	prefix := "<" // this should probably be done differently
-	if result.Value != nil {
-		fmt.Printf("%s%s\n", prefix, result.Value)
-	}
-	if result.Err != nil {
-		fmt.Printf("%sError: %s\n", prefix, result.Err)
-	}
 	return true
 }
 
