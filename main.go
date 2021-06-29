@@ -7,7 +7,6 @@ import (
 	"log"
 	"os"
 	"strings"
-	"sync"
 
 	"github.com/dop251/goja"
 	"github.com/dop251/goja/parser"
@@ -15,10 +14,7 @@ import (
 	"github.com/dop251/goja_nodejs/require"
 )
 
-var (
-	dbg *goja.Debugger
-	wg  sync.WaitGroup
-)
+var dbg *goja.Debugger
 
 func main() {
 	inspect := false
@@ -71,9 +67,6 @@ func main() {
 	registry.RegisterNativeModule("console", console.RequireWithPrinter(printer))
 	console.Enable(runtime)
 
-	wg.Add(2)
-
-	go runtime.RunScript(filename, string(content))
 	if err != nil {
 		log.Fatal(err)
 		os.Exit(4)
@@ -108,6 +101,5 @@ func main() {
 			}
 		}
 	}()
-
-	wg.Wait()
+	runtime.RunScript(filename, string(content))
 }
