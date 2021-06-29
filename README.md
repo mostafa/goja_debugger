@@ -5,7 +5,6 @@ An example Goja application to demonstrate the capabilities of the NEW debugger
 ## References
 
 - [goja debugger implementation](https://github.com/mostafa/goja/tree/debugger)
-- [goja_nodejs debugger changes](https://github.com/mostafa/goja_nodejs/tree/debugger)
 - [goja issue for tracking changes and discussion](https://github.com/dop251/goja/issues/294)
 
 ## How to build
