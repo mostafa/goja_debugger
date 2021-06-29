@@ -104,19 +104,28 @@ func main() {
 	// 	log.Fatal(err)
 	// 	os.Exit(4)
 	// }
+	printWhyWeAreDebugging := func(b string) {
+		if b == goja.BreakpointActivation {
+			fmt.Println("hit breakpoint")
+		} else {
+			fmt.Println("hit debugger statement")
+		}
+	}
 
 	go func() {
 		reader := bufio.NewReader(os.Stdin)
 
-		_, c := dbg.WaitToActivate()
+		b, c := dbg.WaitToActivate()
+		printWhyWeAreDebugging(b)
 		for {
-			fmt.Print("-> ")
+			fmt.Printf("debug[%d]> ", dbg.GetPC())
 			text, _ := reader.ReadString('\n')
 			// convert CRLF to LF
 			text = strings.Replace(text, "\n", "", -1)
 			if !executor(text) {
 				c()
-				_, c = dbg.WaitToActivate()
+				b, c = dbg.WaitToActivate()
+				printWhyWeAreDebugging(b)
 			}
 		}
 	}()
