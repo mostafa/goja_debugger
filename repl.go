@@ -77,7 +77,7 @@ func repl(userInput string) bool {
 		}
 	case "run", "r":
 		// Works like continue, only if the activation reason is program start ("s")
-		if dbg.GetPC() == 0 {
+		if dbg.PC() == 0 {
 			return false
 		} else {
 			fmt.Println("Error: only works if program is not started")

@@ -93,11 +93,11 @@ func main() {
 		info := ""
 		switch liveInfo {
 		case "pc":
-			info = fmt.Sprintf("[%d]", dbg.GetPC())
+			info = fmt.Sprintf("[%d]", dbg.PC())
 		case "line":
 			info = fmt.Sprintf("[%d]", dbg.Line())
 		default:
-			info = fmt.Sprintf("[%d]", dbg.GetPC())
+			info = fmt.Sprintf("[%d]", dbg.PC())
 		}
 		return info
 	}
@@ -108,7 +108,6 @@ func main() {
 		reason, resume := dbg.WaitToActivate()
 		printDebuggingReason(reason)
 		for {
-
 			fmt.Printf("debug%s> ", getInfo())
 			userInput, _ := reader.ReadString('\n')
 			// convert CRLF to LF
