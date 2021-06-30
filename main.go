@@ -36,6 +36,28 @@ func main() {
 					return debug(true, c.String("liveinfo"), c.Args().First())
 				},
 			},
+			{
+				Name:    "serve",
+				Aliases: []string{"s"},
+				Usage:   "Run a DAP server for debugging a JS script with Goja",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:  "host",
+						Value: "127.0.0.1",
+						Usage: "Host address",
+					},
+					&cli.StringFlag{
+						Name:  "port",
+						Value: "4711",
+						Usage: "Port number",
+					},
+				},
+				Action: func(c *cli.Context) error {
+					go server(c.String("host"), c.String("port"))
+					// Running debug shouldn't be necessary
+					return debug(true, "pc", c.Args().First())
+				},
+			},
 		},
 	}
 

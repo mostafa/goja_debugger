@@ -17,3 +17,6 @@ node_modules/
 
 # Binaries
 goja_debugger
+
+# Editor
+.vscode/
