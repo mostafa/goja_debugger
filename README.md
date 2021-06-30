@@ -23,7 +23,9 @@ There are two scripts along with their sourcemaps for testing the debugger funct
 
 ```bash
 npm i
+cd scripts
 node gen-srcmap.js test.js > test.js.map
+node gen-srcmap.js test_prime.js > test_prime.js.map
 ```
 
 ## How to run
@@ -31,19 +33,25 @@ node gen-srcmap.js test.js > test.js.map
 There's just one subcommand in the debugger application, `inspect`. If you use it, it'll tell the compiler to emit `debugger` instruction in your program and also let's the JS VM (Goja VM) to run your script in debug mode. Otherwise it'll just run the script normally. Also, you can pass `line` after `inspect` to have line numbers printed on the `debug[1]>` prompt, instead of program counter (default).
 
 ```bash
-./goja_debugger inspect test.js
+$ ./goja_debugger inspect scripts/test.js
 Welcome to Goja debugger
 Type 'help' or 'h' for list of commands.
-Loaded sourcemap from: test.js.map
-debug[0]> n
-Break on start in test.js:1:1
-> 1     debugger
-  2
-  3     function test(val) {
-  4         debugger
-  5         val += 10
+Loaded sourcemap from: scripts/test.js.map
+Break on start in scripts/test.js:1
+debug[0]> r
+Break on debugger statement in scripts/test.js:11
+debug[3]> l
+  7         let pest = 2
+  8         return val + 2
+  9     }
+  10
+> 11    let i = 1;
+  12    console.log(i)
+  13    // eval('console.log(i + 2)')
+  14
+  15    i = 2
 
-debug[0]>
+debug[3]>
 ```
 
 ## Supported commands
