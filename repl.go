@@ -66,13 +66,13 @@ func repl(userInput string) bool {
 				fmt.Println(err.Error())
 			}
 		}
-	case "breakpoints":
+	case "breakpoints", "b":
 		breakpoints, err := dbg.Breakpoints()
 		if err != nil {
 			fmt.Println(err.Error())
 		} else {
-			for _, b := range breakpoints {
-				fmt.Printf("Breakpoint on %s:%d\n", b.Filename, b.Line)
+			for filename := range breakpoints {
+				fmt.Printf("Breakpoint on %s:%v\n", filename, breakpoints[filename])
 			}
 		}
 	case "run", "r":
@@ -166,7 +166,7 @@ func countDigits(number int) int {
 var help = `
 setBreakpoint, sb        Set a breakpoint on a given file and line
 clearBreakpoint, cb      Clear a breakpoint on a given file and line
-breakpoints              List all known breakpoints
+breakpoints, b           List all known breakpoints
 run, r                   Run program until a breakpoint/debugger statement if program is not started
 next, n                  Continue to next line in current file
 cont, c                  Resume execution until next debugger line
