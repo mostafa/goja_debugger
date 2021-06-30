@@ -79,10 +79,10 @@ func main() {
 	registry.RegisterNativeModule("console", console.RequireWithPrinter(printer))
 	console.Enable(runtime)
 
-	printDebuggingReason := func(b string) {
-		if b == goja.ProgramStartActivation {
+	printDebuggingReason := func(reason goja.ActivationReason) {
+		if reason == goja.ProgramStartActivation {
 			fmt.Printf("Break on start in %s:%d\n", dbg.Filename(), dbg.Line())
-		} else if b == goja.BreakpointActivation {
+		} else if reason == goja.BreakpointActivation {
 			fmt.Printf("Break on breakpoint in %s:%d\ns", dbg.Filename(), dbg.Line())
 		} else {
 			fmt.Printf("Break on debugger statement in %s:%d\n", dbg.Filename(), dbg.Line())
