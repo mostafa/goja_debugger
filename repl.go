@@ -19,8 +19,8 @@ type Command struct {
 	Args []string
 }
 
-func parseCmd(in string) (*Command, error) {
-	data := strings.Split(in, " ")
+func parseCmd(userInput string) (*Command, error) {
+	data := strings.Split(userInput, " ")
 	if len(data) == 0 {
 		return nil, errors.New("unknown command")
 	}
@@ -32,10 +32,10 @@ func parseCmd(in string) (*Command, error) {
 	return &Command{Name: name, Args: args}, nil
 }
 
-func executor(in string) bool {
-	cmd, err := parseCmd(in)
+func repl(userInput string) bool {
+	cmd, err := parseCmd(userInput)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println(err.Error())
 		return true
 	}
 
@@ -75,10 +75,17 @@ func executor(in string) bool {
 				fmt.Printf("Breakpoint on %s:%d\n", b.Filename, b.Line)
 			}
 		}
+	case "run", "r":
+		// Works like continue, only if the activation reason is program start ("s")
+		if dbg.GetPC() == 0 {
+			return false
+		} else {
+			fmt.Println("Error: only works if program is not started")
+		}
 	case "next", "n":
 		err = dbg.Next()
 		if err != nil {
-			// fmt.Println(err)
+			// fmt.Println(err.Error())
 			return false
 		}
 	case "cont", "continue", "c":
@@ -91,21 +98,21 @@ func executor(in string) bool {
 	case "exec", "e":
 		val, err := dbg.Exec(strings.Join(cmd.Args, ";"))
 		if err != nil {
-			fmt.Printf("Error: %s\n", err)
+			fmt.Printf("Error: %s\n", err.Error())
 			break
 		}
 		fmt.Printf("< %s\n", val)
 	case "print", "p":
 		val, err := dbg.Print(strings.Join(cmd.Args, ""))
 		if err != nil {
-			fmt.Printf("Error: %s\n", err)
+			fmt.Printf("Error: %s\n", err.Error())
 			break
 		}
 		fmt.Printf("< %s\n", val)
 	case "list", "l":
 		lines, err := dbg.List()
 		if err != nil {
-			fmt.Printf("Error: %s\n", err)
+			fmt.Printf("Error: %s\n", err.Error())
 			break
 		}
 		currentLine := dbg.Line()
@@ -134,7 +141,7 @@ func executor(in string) bool {
 	case "quit", "q":
 		os.Exit(0)
 	default:
-		fmt.Printf("Unknown command, `%s`. You can use `h` to print available commands\n", in)
+		fmt.Printf("Unknown command, `%s`. You can use `h` to print available commands\n", userInput)
 	}
 
 	return true
@@ -157,16 +164,17 @@ func countDigits(number int) int {
 }
 
 var help = `
-	setBreakpoint, sb        Set a breakpoint on a given file and line
-	clearBreakpoint, cb      Clear a breakpoint on a given file and line
-	breakpoints              List all known breakpoints
-	next, n                  Continue to next line in current file
-	cont, c                  Resume execution until next debugger line
-	step, s                  Step into, potentially entering a function (not implemented yet)
-	out, o                   Step out, leaving the current function (not implemented yet)
-	exec, e                  Evaluate the expression and print the value
-	list, l                  Print the source around the current line where execution is currently paused
-	print, p                 Print the provided variable's value
-	help, h                  Print this very help message
-	quit, q                  Exit debugger and quit (Ctrl+C)
+setBreakpoint, sb        Set a breakpoint on a given file and line
+clearBreakpoint, cb      Clear a breakpoint on a given file and line
+breakpoints              List all known breakpoints
+run, r                   Run program until a breakpoint/debugger statement if program is not started
+next, n                  Continue to next line in current file
+cont, c                  Resume execution until next debugger line
+step, s                  Step into, potentially entering a function
+out, o                   Step out, leaving the current function (not implemented yet)
+exec, e                  Evaluate the expression and print the value
+list, l                  Print the source around the current line where execution is currently paused
+print, p                 Print the provided variable's value
+help, h                  Print this very help message
+quit, q                  Exit debugger and quit (Ctrl+C)
 `[1:] // this removes the first new line

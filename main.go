@@ -79,7 +79,7 @@ func main() {
 	registry.RegisterNativeModule("console", console.RequireWithPrinter(printer))
 	console.Enable(runtime)
 
-	printWhyWeAreDebugging := func(b string) {
+	printDebuggingReason := func(b string) {
 		if b == goja.ProgramStartActivation {
 			fmt.Printf("Break on start in %s:%d\n", dbg.Filename(), dbg.Line())
 		} else if b == goja.BreakpointActivation {
@@ -89,29 +89,34 @@ func main() {
 		}
 	}
 
+	getInfo := func() string {
+		info := ""
+		switch liveInfo {
+		case "pc":
+			info = fmt.Sprintf("[%d]", dbg.GetPC())
+		case "line":
+			info = fmt.Sprintf("[%d]", dbg.Line())
+		default:
+			info = fmt.Sprintf("[%d]", dbg.GetPC())
+		}
+		return info
+	}
+
 	go func() {
 		reader := bufio.NewReader(os.Stdin)
 
-		b, c := dbg.WaitToActivate()
-		printWhyWeAreDebugging(b)
+		reason, resume := dbg.WaitToActivate()
+		printDebuggingReason(reason)
 		for {
-			info := ""
-			switch liveInfo {
-			case "pc":
-				info = fmt.Sprintf("[%d]", dbg.GetPC())
-			case "line":
-				info = fmt.Sprintf("[%d]", dbg.Line())
-			default:
-				info = fmt.Sprintf("[%d]", dbg.GetPC())
-			}
-			fmt.Printf("debug%s> ", info)
-			text, _ := reader.ReadString('\n')
+
+			fmt.Printf("debug%s> ", getInfo())
+			userInput, _ := reader.ReadString('\n')
 			// convert CRLF to LF
-			text = strings.Replace(text, "\n", "", -1)
-			if !executor(text) {
-				c()
-				b, c = dbg.WaitToActivate()
-				printWhyWeAreDebugging(b)
+			userInput = strings.Replace(userInput, "\n", "", -1)
+			if !repl(userInput) {
+				resume()
+				reason, resume = dbg.WaitToActivate()
+				printDebuggingReason(reason)
 			}
 		}
 	}()
