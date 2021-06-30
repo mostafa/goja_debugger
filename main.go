@@ -103,19 +103,21 @@ func main() {
 	}
 
 	go func() {
-		reader := bufio.NewReader(os.Stdin)
+		if inspect {
+			reader := bufio.NewReader(os.Stdin)
 
-		reason, resume := dbg.WaitToActivate()
-		printDebuggingReason(reason)
-		for {
-			fmt.Printf("debug%s> ", getInfo())
-			userInput, _ := reader.ReadString('\n')
-			// convert CRLF to LF
-			userInput = strings.Replace(userInput, "\n", "", -1)
-			if !repl(userInput) {
-				resume()
-				reason, resume = dbg.WaitToActivate()
-				printDebuggingReason(reason)
+			reason, resume := dbg.WaitToActivate()
+			printDebuggingReason(reason)
+			for {
+				fmt.Printf("debug%s> ", getInfo())
+				userInput, _ := reader.ReadString('\n')
+				// convert CRLF to LF
+				userInput = strings.Replace(userInput, "\n", "", -1)
+				if !repl(userInput) {
+					resume()
+					reason, resume = dbg.WaitToActivate()
+					printDebuggingReason(reason)
+				}
 			}
 		}
 	}()
