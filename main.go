@@ -12,6 +12,7 @@ import (
 	"github.com/dop251/goja/parser"
 	"github.com/dop251/goja_nodejs/console"
 	"github.com/dop251/goja_nodejs/require"
+	"github.com/evanw/esbuild/pkg/api"
 )
 
 var dbg *goja.Debugger
@@ -43,6 +44,9 @@ func main() {
 	}
 
 	if inspect {
+		// Generate sourceamp on-the-fly
+		content = generateSourceMap(filename, string(content))
+
 		fmt.Println("Welcome to Goja debugger")
 		fmt.Println("Type 'help' or 'h' for list of commands.")
 	}
@@ -79,29 +83,6 @@ func main() {
 	registry.RegisterNativeModule("console", console.RequireWithPrinter(printer))
 	console.Enable(runtime)
 
-	printDebuggingReason := func(reason goja.ActivationReason) {
-		if reason == goja.ProgramStartActivation {
-			fmt.Printf("Break on start in %s:%d\n", dbg.Filename(), dbg.Line())
-		} else if reason == goja.BreakpointActivation {
-			fmt.Printf("Break on breakpoint in %s:%d\ns", dbg.Filename(), dbg.Line())
-		} else {
-			fmt.Printf("Break on debugger statement in %s:%d\n", dbg.Filename(), dbg.Line())
-		}
-	}
-
-	getInfo := func() string {
-		info := ""
-		switch liveInfo {
-		case "pc":
-			info = fmt.Sprintf("[%d]", dbg.PC())
-		case "line":
-			info = fmt.Sprintf("[%d]", dbg.Line())
-		default:
-			info = fmt.Sprintf("[%d]", dbg.PC())
-		}
-		return info
-	}
-
 	go func() {
 		if inspect {
 			reader := bufio.NewReader(os.Stdin)
@@ -109,7 +90,7 @@ func main() {
 			reason, resume := dbg.WaitToActivate()
 			printDebuggingReason(reason)
 			for {
-				fmt.Printf("debug%s> ", getInfo())
+				fmt.Printf("debug%s> ", getInfo(liveInfo))
 				userInput, _ := reader.ReadString('\n')
 				// convert CRLF to LF
 				userInput = strings.Replace(userInput, "\n", "", -1)
@@ -135,3 +116,39 @@ var cmdHelp = `
 inspect: enable debugging
 line|pc: show line number or program counter at debug prompt
 `[1:]
+
+func printDebuggingReason(reason goja.ActivationReason) {
+	if reason == goja.ProgramStartActivation {
+		fmt.Printf("Break on start in %s:%d\n", dbg.Filename(), dbg.Line())
+	} else if reason == goja.BreakpointActivation {
+		fmt.Printf("Break on breakpoint in %s:%d\ns", dbg.Filename(), dbg.Line())
+	} else {
+		fmt.Printf("Break on debugger statement in %s:%d\n", dbg.Filename(), dbg.Line())
+	}
+}
+
+func getInfo(liveInfo string) string {
+	info := ""
+	switch liveInfo {
+	case "pc":
+		info = fmt.Sprintf("[%d]", dbg.PC())
+	case "line":
+		info = fmt.Sprintf("[%d]", dbg.Line())
+	default:
+		info = fmt.Sprintf("[%d]", dbg.PC())
+	}
+	return info
+}
+
+func generateSourceMap(filename string, src string) []byte {
+	result := api.Transform(src, api.TransformOptions{
+		Sourcemap:  api.SourceMapInline,
+		Sourcefile: filename,
+	})
+
+	if len(result.Errors) > 0 {
+		fmt.Println(result.Errors)
+	}
+
+	return result.Code
+}
