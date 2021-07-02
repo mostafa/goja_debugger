@@ -28,8 +28,10 @@ func debug(inspect bool, liveInfo, filename string) error {
 	}
 
 	if inspect {
-		// Generate sourceamp on-the-fly
-		content = generateSourceMap(filename, string(content))
+		if !strings.Contains(string(content), "//# sourceMappingURL=") {
+			// Generate sourceamp on-the-fly, which will unavoidably remove comments and empty lines
+			content = generateSourceMap(filename, string(content))
+		}
 
 		fmt.Println("Welcome to Goja debugger")
 		fmt.Println("Type 'help' or 'h' for list of commands.")
@@ -115,8 +117,12 @@ func getInfo(liveInfo string) string {
 
 func generateSourceMap(filename string, src string) []byte {
 	result := api.Transform(src, api.TransformOptions{
-		Sourcemap:  api.SourceMapInline,
-		Sourcefile: filename,
+		Sourcemap:         api.SourceMapInline,
+		SourcesContent:    api.SourcesContentInclude,
+		Sourcefile:        filename,
+		MinifyWhitespace:  false,
+		MinifyIdentifiers: false,
+		MinifySyntax:      false,
 	})
 
 	if len(result.Errors) > 0 {
