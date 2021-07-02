@@ -6,6 +6,7 @@ An example Goja application to demonstrate the capabilities of the NEW debugger
 
 - [goja debugger implementation](https://github.com/mostafa/goja/tree/debugger)
 - [goja issue for tracking changes and discussion](https://github.com/dop251/goja/issues/294)
+- [goja PR](https://github.com/dop251/goja/pull/297)
 
 ## How to build
 
