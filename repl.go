@@ -96,7 +96,7 @@ func repl(userInput string) bool {
 			return false
 		}
 	case "exec", "e":
-		val, err := dbg.Exec(strings.Join(cmd.Args, ";"))
+		val, err := dbg.Exec(strings.Join(cmd.Args, " "))
 		if err != nil {
 			fmt.Printf("Error: %s\n", err.Error())
 			break
