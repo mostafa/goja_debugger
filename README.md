@@ -70,6 +70,7 @@ out, o                   Step out, leaving the current function (not implemented
 exec, e                  Evaluate the expression and print the value
 list, l                  Print the source around the current line where execution is currently paused
 print, p                 Print the provided variable's value
+backtrace, bt            Print the current backtrace
 help, h                  Print this very help message
 quit, q                  Exit debugger and quit (Ctrl+C)
 ```

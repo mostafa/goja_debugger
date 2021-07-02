@@ -16,6 +16,7 @@ import (
 )
 
 var dbg *goja.Debugger
+var runtime *goja.Runtime
 
 func main() {
 	inspect := false
@@ -72,7 +73,7 @@ func main() {
 		os.Exit(3)
 	}
 
-	runtime := goja.New()
+	runtime = goja.New()
 
 	if inspect {
 		dbg = runtime.EnableDebugMode()

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"os"
@@ -136,6 +137,15 @@ func repl(userInput string) bool {
 			}
 		}
 		fmt.Println(builder.String())
+	case "backtrace", "bt":
+		stack := runtime.CaptureCallStack(0, nil)
+		var backtrace bytes.Buffer
+		backtrace.WriteRune('\n')
+		for _, frame := range stack {
+			frame.Write(&backtrace)
+			backtrace.WriteRune('\n')
+		}
+		fmt.Println(backtrace.String())
 	case "help", "h":
 		fmt.Println(help)
 	case "quit", "q":
@@ -175,6 +185,7 @@ out, o                   Step out, leaving the current function (not implemented
 exec, e                  Evaluate the expression and print the value
 list, l                  Print the source around the current line where execution is currently paused
 print, p                 Print the provided variable's value
+backtrace, bt            Print the current backtrace
 help, h                  Print this very help message
 quit, q                  Exit debugger and quit (Ctrl+C)
 `[1:] // this removes the first new line
