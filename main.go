@@ -13,35 +13,55 @@ import (
 	"github.com/dop251/goja_nodejs/console"
 	"github.com/dop251/goja_nodejs/require"
 	"github.com/evanw/esbuild/pkg/api"
+	"github.com/urfave/cli/v2"
 )
 
 var dbg *goja.Debugger
 var runtime *goja.Runtime
 
 func main() {
-	inspect := false
-	// Possible values for liveInfo: pc, line, ""
-	liveInfo := "pc"
-	filename := ""
-
-	if len(os.Args) == 2 {
-		filename = os.Args[1]
-	} else if len(os.Args) == 3 {
-		inspect = (os.Args[1] == "inspect")
-		filename = os.Args[2]
-	} else if len(os.Args) == 4 {
-		inspect = (os.Args[1] == "inspect")
-		liveInfo = os.Args[2]
-		filename = os.Args[3]
-	} else {
-		fmt.Printf(cmdHelp, os.Args[0])
-		os.Exit(1)
+	app := &cli.App{
+		Name:  "goja_debugger",
+		Usage: "Runs or inspects a JS script with Goja",
+		Commands: []*cli.Command{
+			{
+				Name:    "run",
+				Aliases: []string{"r"},
+				Usage:   "Runs a JS script with Goja",
+				Action: func(c *cli.Context) error {
+					return debug(false, "", c.Args().First())
+				},
+			},
+			{
+				Name:    "inspect",
+				Aliases: []string{"i"},
+				Usage:   "Debugs a JS script with Goja",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:    "liveinfo",
+						Aliases: []string{"l"},
+						Value:   "pc",
+						Usage:   "Show program counter (pc) or line number (line) in debug prompt",
+					},
+				},
+				Action: func(c *cli.Context) error {
+					return debug(true, c.String("liveinfo"), c.Args().First())
+				},
+			},
+		},
 	}
 
+	err := app.Run(os.Args)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func debug(inspect bool, liveInfo, filename string) error {
 	content, err := ioutil.ReadFile(filename)
 	if err != nil {
 		log.Fatal(err)
-		os.Exit(2)
+		return err
 	}
 
 	if inspect {
@@ -70,7 +90,7 @@ func main() {
 	_, err = parser.ParseFile(nil, filename, string(content), 0, parser.WithSourceMapLoader(loader))
 	if err != nil {
 		log.Fatal(err)
-		os.Exit(3)
+		return err
 	}
 
 	runtime = goja.New()
@@ -107,16 +127,11 @@ func main() {
 	runtime.RunScript(filename, string(content))
 	if err != nil {
 		log.Fatal(err)
-		os.Exit(4)
+		return err
 	}
+
+	return nil
 }
-
-var cmdHelp = `
-%s [inspect] [line|pc] <filename>
-
-inspect: enable debugging
-line|pc: show line number or program counter at debug prompt
-`[1:]
 
 func printDebuggingReason(reason goja.ActivationReason) {
 	if reason == goja.ProgramStartActivation {
@@ -129,16 +144,10 @@ func printDebuggingReason(reason goja.ActivationReason) {
 }
 
 func getInfo(liveInfo string) string {
-	info := ""
-	switch liveInfo {
-	case "pc":
-		info = fmt.Sprintf("[%d]", dbg.PC())
-	case "line":
-		info = fmt.Sprintf("[%d]", dbg.Line())
-	default:
-		info = fmt.Sprintf("[%d]", dbg.PC())
+	if liveInfo == "line" {
+		return fmt.Sprintf("[%d]", dbg.Line())
 	}
-	return info
+	return fmt.Sprintf("[%d]", dbg.PC())
 }
 
 func generateSourceMap(filename string, src string) []byte {
