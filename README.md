@@ -64,6 +64,7 @@ setBreakpoint, sb        Set a breakpoint on a given file and line
 clearBreakpoint, cb      Clear a breakpoint on a given file and line
 breakpoints, b           List all known breakpoints
 run, r                   Run program until a breakpoint/debugger statement if program is not started
+                         (ProgramStartActivation is disabled, so run doesn't work for now)
 next, n                  Continue to next line in current file
 cont, c                  Resume execution until next debugger line
 step, s                  Step into, potentially entering a function

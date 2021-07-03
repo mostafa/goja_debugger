@@ -76,13 +76,13 @@ func repl(userInput string) bool {
 				fmt.Printf("Breakpoint on %s:%v\n", filename, breakpoints[filename])
 			}
 		}
-	case "run", "r":
-		// Works like continue, only if the activation reason is program start ("s")
-		if dbg.PC() == 0 {
-			return false
-		} else {
-			fmt.Println("Error: only works if program is not started")
-		}
+	// case "run", "r":
+	// 	// Works like continue, only if the activation reason is program start ("s")
+	// 	if dbg.PC() == 0 {
+	// 		return false
+	// 	} else {
+	// 		fmt.Println("Error: only works if program is not started")
+	// 	}
 	case "next", "n":
 		err = dbg.Next()
 		if err != nil {
@@ -178,6 +178,7 @@ setBreakpoint, sb        Set a breakpoint on a given file and line
 clearBreakpoint, cb      Clear a breakpoint on a given file and line
 breakpoints, b           List all known breakpoints
 run, r                   Run program until a breakpoint/debugger statement if program is not started
+                         (ProgramStartActivation is disabled, so run doesn't work for now)
 next, n                  Continue to next line in current file
 cont, c                  Resume execution until next debugger line
 step, s                  Step into, potentially entering a function
