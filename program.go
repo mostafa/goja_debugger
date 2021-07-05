@@ -61,7 +61,7 @@ func debug(inspect bool, liveInfo, filename string) error {
 	runtime = goja.New()
 
 	if inspect {
-		dbg = runtime.EnableDebugMode()
+		dbg = runtime.AttachDebugger()
 	}
 
 	registry := new(require.Registry)
@@ -70,10 +70,11 @@ func debug(inspect bool, liveInfo, filename string) error {
 	console.Enable(runtime)
 
 	go func() {
+		defer dbg.Detach()
 		if inspect {
 			reader := bufio.NewReader(os.Stdin)
 
-			reason, resume := dbg.WaitToActivate()
+			reason := dbg.Continue()
 			printDebuggingReason(reason)
 			for {
 				fmt.Printf("debug%s> ", getInfo(liveInfo))
@@ -81,8 +82,7 @@ func debug(inspect bool, liveInfo, filename string) error {
 				// convert CRLF to LF
 				userInput = strings.Replace(userInput, "\n", "", -1)
 				if !repl(userInput) {
-					resume()
-					reason, resume = dbg.WaitToActivate()
+					reason = dbg.Continue()
 					printDebuggingReason(reason)
 				}
 			}
