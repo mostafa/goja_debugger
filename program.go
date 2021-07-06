@@ -70,8 +70,8 @@ func debug(inspect bool, liveInfo, filename string) error {
 	console.Enable(runtime)
 
 	go func() {
-		defer dbg.Detach()
 		if inspect {
+			defer dbg.Detach()
 			reader := bufio.NewReader(os.Stdin)
 
 			reason := dbg.Continue()
