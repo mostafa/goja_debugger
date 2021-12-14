@@ -23,8 +23,8 @@ go build
 There are two scripts along with their sourcemaps for testing the debugger functionality. If you want to debug your own scripts, you might need to use Node.js to generate your own sourcemap for your JavaScript, which helps the debugger application easily pinpoint the lines in your script.
 
 ```bash
-npm i
 cd scripts
+npm i
 node gen-srcmap.js test.js > test.js.map
 node gen-srcmap.js test_prime.js > test_prime.js.map
 ```
