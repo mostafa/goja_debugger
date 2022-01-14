@@ -1,6 +1,6 @@
 # Goja Debugger
 
-An example Goja application to demonstrate the capabilities of the NEW debugger
+A Goja debugger's CLI frontend application to demonstrate the capabilities of the NEW Goja [debugger](https://github.com/mostafa/goja/tree/debugger).
 
 ## References
 
