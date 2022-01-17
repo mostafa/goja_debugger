@@ -7,6 +7,7 @@ A Goja debugger's CLI frontend application to demonstrate the capabilities of th
 - [goja debugger implementation](https://github.com/mostafa/goja/tree/debugger)
 - [goja issue for tracking changes and discussion](https://github.com/dop251/goja/issues/294)
 - [goja PR](https://github.com/dop251/goja/pull/297)
+- [POC debugger with 1 VU in k6](https://github.com/grafana/k6/tree/feature/PoCDebugger)
 
 ## How to build
 
