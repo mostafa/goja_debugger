@@ -13,9 +13,13 @@ A Goja debugger's CLI frontend application to demonstrate the capabilities of th
 
 This repositories contains an example application in Go for testing the debugger functionality I'm developing for [Goja](https://github.com/dop251/goja) and a bunch of scripts in JavaScript, one (`gen-srcmap.js`) for generating sourcemaps for your JavaScript files and two other (`test_*.js`) for testing the debugger app.
 
-To run the debugger application, just run `go build` in the cloned project on your machine, assuming you have Go.
+To run the debugger application, just run `go build` in the cloned project on your machine, assuming you have Go. The Goja repository should also exist next to the cloned `goja_debugger` directory and the `debugger` needs to be checked out.
 
 ```bash
+git clone https://github.com/mostafa/goja
+cd goja
+git checkout debugger
+cd ..
 git clone https://github.com/mostafa/goja_debugger
 cd goja_debugger
 go build
