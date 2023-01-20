@@ -2,6 +2,10 @@
 
 A Goja debugger's CLI frontend application to demonstrate the capabilities of the NEW Goja [debugger](https://github.com/mostafa/goja/tree/debugger).
 
+## Notice
+
+This project is no longer developed and maintained. If you're interested in developing it, please fork it.
+
 ## References
 
 - [goja debugger implementation](https://github.com/mostafa/goja/tree/debugger)
